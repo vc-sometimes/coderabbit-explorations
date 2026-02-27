@@ -40,6 +40,10 @@
     --appearance-toggle-bg: #f5f5f4;
     --appearance-active-bg: #FFFFFF;
     --table-header-bg: #fafaf9;
+    --tag-brand-bg: #fff5ed;
+    --tag-brand-fg: #f04006;
+    --divider-highlight: rgba(255,255,255,0.9);
+    --title-fg: #292524;
   }
 
   [data-theme="dark"] {
@@ -75,6 +79,10 @@
     --appearance-toggle-bg: #292524;
     --appearance-active-bg: #44403c;
     --table-header-bg: #1c1917;
+    --tag-brand-bg: rgba(240,64,6,0.12);
+    --tag-brand-fg: #f87341;
+    --divider-highlight: rgba(255,255,255,0.06);
+    --title-fg: #e7e5e4;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -361,9 +369,6 @@
   .rail-item[data-tooltip]:hover::after {
     opacity: 1;
   }
-  .sidebar.panel-open .rail-item[data-tooltip]::after {
-    display: none;
-  }
   .rail-separator {
     width: 24px;
     height: 1px;
@@ -426,8 +431,8 @@
     border-left: 1px solid var(--border-light);
     display: flex;
     flex-direction: column;
-    padding: 20px 10px 12px;
-    overflow: hidden;
+    padding: 0 14px 12px;
+    overflow: visible;
     position: relative;
     z-index: 1;
     background: transparent;
@@ -441,10 +446,10 @@
     color: var(--muted-more);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 0 4px 44px;
+    padding: 0 4px;
     flex-shrink: 0;
     white-space: nowrap;
-    height: 30px;
+    height: 56px;
     display: flex;
     align-items: center;
   }
@@ -478,14 +483,13 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    overflow-y: auto;
     flex: 1;
   }
   .panel-item {
     font-size: 13px;
     font-weight: 400;
     color: var(--muted);
-    padding: 5px 8px;
+    padding: 5px 0;
     border-radius: 4px;
     cursor: pointer;
     display: flex;
@@ -496,6 +500,73 @@
   }
   .panel-item:hover { background: var(--hover); color: var(--tag-fg); }
   .panel-item.active { background: var(--hover); color: var(--fg); font-weight: 500; }
+  .panel-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+  .panel-item.active .panel-icon { opacity: 0.8; }
+  .panel-subitems {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-left: 12px;
+    padding-left: 10px;
+    border-left: 1px solid var(--border-light);
+  }
+  .panel-item.sub {
+    font-size: 13px;
+    padding: 4px 8px;
+  }
+  .panel-mode {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0 0;
+    flex-shrink: 0;
+  }
+  .panel-mode-label {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .panel-mode .select-pill { font-size: 12px; min-width: 82px; }
+  .panel-mode .select-pill .btn-inner { padding: 3px 7px; gap: 4px; width: 100%; justify-content: space-between; }
+  .view-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 140px;
+    background: var(--bg-content);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 8px 24px var(--shadow-md), 0 2px 6px var(--shadow-sm);
+    padding: 4px;
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 91;
+  }
+  .view-dropdown-menu.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .view-dropdown-item {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    padding: 6px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.1s ease, color 0.1s ease;
+  }
+  .view-dropdown-item:hover { background: var(--hover); color: var(--fg); }
+  .view-dropdown-item.active { color: var(--fg); font-weight: 500; }
 
   /* ---- COMMAND SEARCH ---- */
   .cmd-overlay {
@@ -1195,37 +1266,57 @@
     max-width: 696px;
     padding: 0 16px;
   }
+  .settings-card {
+    background: var(--hover);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0 16px;
+    overflow: clip;
+    box-shadow: inset 0 1px 0 0 var(--inner-border-top), inset 0 -1px 0 0 var(--inner-border-bottom), inset 1px 0 0 0 var(--inner-border-left), inset -1px 0 0 0 var(--inner-border-right), 0 1px 3px var(--shadow-sm);
+  }
 
-  /* Setting group */
-  .setting-group { margin-bottom: 32px; }
-  .setting-group:last-child { margin-bottom: 0; }
+  /* Setting item */
+  .setting-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 0 0 var(--divider-highlight);
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    transition: background 0.15s ease;
+  }
+  .setting-item:last-child { border-bottom: none; box-shadow: none; }
+  .setting-item:hover { background: rgba(255,255,255,0.4); }
+  [data-theme="dark"] .setting-item:hover { background: rgba(255,255,255,0.03); }
 
-  .setting-item { padding: 16px 0; }
-  .setting-item + .setting-item { border-top: 1px solid var(--hover); }
-
-  .setting-header {
+  .setting-row {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .setting-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
   .setting-title {
     font-size: 14px;
-    font-weight: 600;
-    color: var(--fg);
-    line-height: 1.4;
-    letter-spacing: -0.01em;
+    font-weight: 500;
+    color: var(--title-fg);
+    line-height: 18px;
   }
   .setting-desc {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 400;
-    color: var(--muted-more);
-    line-height: 1.5;
-    margin-top: 2px;
+    color: var(--muted);
+    line-height: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .setting-control {
     flex-shrink: 0;
-    margin-left: 24px;
-    margin-top: 1px;
   }
 
   /* Select / dropdown — double stroke */
@@ -1283,140 +1374,182 @@
     border-bottom: 1px solid var(--bb, var(--inner-border-bottom));
   }
 
+  /* Settings sub-content (table, tags, textarea) */
+  .setting-subcontent {
+    margin-top: 12px;
+  }
+
   /* Table */
   .settings-table {
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border);
     border-radius: 4px;
     overflow: hidden;
-    margin-top: 12px;
     background: var(--bg-content);
+    box-shadow: inset 0 2px 3px var(--shadow-sm), inset 0 -1px 0 0 rgba(255,255,255,0.5);
   }
   .table-header {
     display: flex;
     border-bottom: 1px solid var(--border-light);
-    background: var(--table-header-bg);
+    background: var(--bg-content);
   }
   .table-header-cell {
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 400;
     color: var(--muted);
-    padding: 8px 12px;
+    padding: 10px;
+    line-height: 16px;
   }
-  .table-header-cell.col-path { width: 200px; }
+  .table-header-cell.col-path { width: 188px; }
   .table-header-cell.col-instruction { flex: 1; }
-  .table-header-cell.col-action { width: 44px; }
+  .table-header-cell.col-action { width: 56px; }
 
   .table-row {
     display: flex;
     align-items: center;
+    border-bottom: 1px solid var(--border-light);
   }
+  .table-row:last-child { border-bottom: none; }
   .table-cell {
     font-size: 14px;
     color: var(--fg);
-    padding: 10px 12px;
-  }
-  .table-cell.col-path {
-    width: 200px;
-    color: var(--muted);
-    font-family: monospace;
-    font-size: 13px;
-  }
-  .table-cell.col-instruction { flex: 1; color: var(--muted); }
-  .table-cell.col-action {
-    width: 44px;
+    padding: 0 10px;
+    height: 48px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    line-height: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .table-cell.col-path {
+    width: 188px;
+    font-family: monospace;
+    font-size: 14px;
+  }
+  .table-cell.col-instruction { flex: 1; color: var(--fg); }
+  .table-cell.col-action {
+    width: 56px;
+    justify-content: flex-end;
     color: var(--muted-more);
     cursor: pointer;
     transition: color 0.15s ease;
   }
   .table-cell.col-action:hover { color: var(--tag-fg); }
-  .table-row { transition: background 0.15s ease; }
-  .table-row:hover { background: var(--surface); }
 
   /* Tag input */
   .tag-input-container {
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border);
     border-radius: 4px;
-    padding: 10px;
+    padding: 12px;
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 12px;
+    gap: 8px;
     background: var(--bg-content);
     min-height: 44px;
     align-items: center;
+    box-shadow: inset 0 2px 3px var(--shadow-sm), inset 0 -1px 0 0 rgba(255,255,255,0.5);
   }
   .tag {
     display: flex;
     align-items: center;
-    gap: 4px;
-    background: var(--tag-bg);
-    border: 1px solid var(--border-light);
-    border-radius: 4px;
-    padding: 3px 6px 3px 8px;
+    gap: 10px;
+    padding: 4px 8px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 400;
+    line-height: 16px;
+  }
+  .tag.tag-brand {
+    background: var(--tag-brand-bg);
+    color: var(--tag-brand-fg);
+  }
+  .tag.tag-plain {
+    background: var(--surface);
+    border: 1px solid var(--border);
     color: var(--tag-fg);
   }
   .tag-remove {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 14px;
-    height: 14px;
-    border-radius: 2px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
-    color: var(--muted-more);
-    transition: color 0.15s ease, background 0.15s ease;
+    color: inherit;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
   }
-  .tag-remove:hover { color: var(--tag-fg); background: var(--hover); }
+  .tag-remove:hover { opacity: 1; }
   .tag-add {
     font-size: 12px;
-    color: var(--muted-more);
+    font-weight: 400;
+    color: var(--fg);
     cursor: pointer;
-    padding: 3px 6px;
-    border-radius: 4px;
-    transition: color 0.15s ease, background 0.15s ease;
+    line-height: 16px;
+    transition: color 0.15s ease;
   }
-  .tag-add:hover { color: var(--tag-fg); background: var(--hover); }
+  .tag-add:hover { color: var(--muted); }
 
   /* Toggle */
   .toggle-track {
-    width: 36px;
-    height: 20px;
-    background: #f04006;
-    border-radius: 10px;
+    width: 40px;
+    height: 22px;
+    background: var(--border-light);
+    border: 1px solid var(--border);
+    border-radius: 4px;
     position: relative;
     cursor: pointer;
     flex-shrink: 0;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-    transition: background 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: inset 0 2px 3px rgba(12,10,9,0.1), inset 0 -1px 0 0 rgba(255,255,255,0.5);
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  .toggle-track:hover { box-shadow: inset 0 1px 2px rgba(0,0,0,0.1), 0 0 0 3px rgba(240,64,6,0.1); }
+  .toggle-track.on {
+    background: #f04006;
+    border: 1px solid #c23304;
+    box-shadow: inset 0 2px 3px rgba(0,0,0,0.2), inset 0 -1px 0 0 rgba(255,255,255,0.15);
+  }
+  .toggle-track:hover { box-shadow: inset 0 2px 3px rgba(12,10,9,0.1), inset 0 -1px 0 0 rgba(255,255,255,0.5), 0 0 0 3px rgba(240,64,6,0.1); }
+  .toggle-track.on:hover { box-shadow: inset 0 2px 3px rgba(0,0,0,0.2), inset 0 -1px 0 0 rgba(255,255,255,0.15), 0 0 0 3px rgba(240,64,6,0.1); }
   .toggle-thumb {
-    width: 16px;
+    width: 22px;
     height: 16px;
     background: #FFFFFF;
-    border-radius: 50%;
+    border-radius: 2px;
     position: absolute;
-    top: 2px;
-    right: 2px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.06);
-    transition: right 0.2s ease, left 0.2s ease;
+    top: 50%;
+    left: 2px;
+    transform: translateY(-50%);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 0 rgba(255,255,255,0.9), inset 0 -1px 0 0 rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    transition: left 0.2s ease;
+  }
+  .toggle-track.on .toggle-thumb {
+    left: 14px;
   }
 
-  /* Section divider */
-  .group-divider {
-    height: 1px;
-    background: var(--border-light);
-    margin: 8px 0;
+  /* Textarea */
+  .setting-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-content);
+    font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--fg);
+    line-height: 18px;
+    resize: vertical;
+    outline: none;
+    box-shadow: inset 0 2px 3px var(--shadow-sm), inset 0 -1px 0 0 rgba(255,255,255,0.5);
+    transition: border-color 0.15s ease;
   }
+  .setting-textarea::placeholder { color: var(--muted); }
+  .setting-textarea:focus { border-color: var(--muted-more); }
 
   /* ---- RESPONSIVE ---- */
   @media (max-width: 1024px) {
-    .settings-container { max-width: 100%; padding: 0 24px; }
+    .settings-container { max-width: 100%; padding: 0 16px; }
   }
 
   @media (max-width: 768px) {
@@ -1444,8 +1577,8 @@
     .top-header { padding: 8px 12px 0; }
     .content-wrapper { padding: 0 8px 8px; }
     .settings-container { max-width: 100%; padding: 0 16px; }
-    .table-header-cell.col-path { width: 140px; }
-    .table-cell.col-path { width: 140px; }
+    .table-header-cell.col-path { width: 140px; flex-shrink: 0; }
+    .table-cell.col-path { width: 140px; flex-shrink: 0; }
 
     /* Mobile menu toggle */
     .mobile-menu-btn {
@@ -1466,18 +1599,19 @@
   @media (max-width: 480px) {
     .header-dropdown-org { display: none; }
     .settings-container { padding: 0 12px; }
-    .setting-header { flex-direction: column; gap: 8px; }
-    .setting-control { margin-left: 0; }
+    .setting-control { margin-left: 0; margin-top: 8px; }
     .tag-input-container { padding: 8px; }
-    .table-header-cell.col-path { width: 100px; }
-    .table-cell.col-path { width: 100px; }
+    .table-header-cell.col-path { width: 100px; flex-shrink: 0; }
+    .table-cell.col-path { width: 100px; flex-shrink: 0; }
+    .setting-row { flex-wrap: wrap; }
+    .setting-icon { display: none; }
   }
 </style>
 </head>
 <body>
 
 <!-- ===== SIDEBAR ===== -->
-<div class="sidebar">
+<div class="sidebar panel-open">
   <!-- Icon Rail -->
   <div class="sidebar-rail">
     <div class="workspace-avatar" id="workspaceBtn">
@@ -1506,7 +1640,7 @@
         <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/ca48a9e7-93fc-4b74-a1b7-1ec146f0ae03" alt="">
         <span class="rail-item-label">Search</span>
       </div>
-      <div class="rail-item active" data-nav="home" data-tooltip="Home">
+      <div class="rail-item" data-nav="home" data-tooltip="Home">
         <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/f1a2d85d-9972-4af1-b211-7eeb36bf2b0e" alt="">
         <span class="rail-item-label">Home</span>
       </div>
@@ -1537,22 +1671,46 @@
         <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/c3e1e890-40c5-424d-8670-59507e5b91b5" alt="">
         <span class="rail-item-label">Dashboard</span>
       </div>
-      <div class="rail-item" data-nav="configurations" data-has-children="true" data-tooltip="Configurations">
+      <div class="rail-item active" data-nav="configurations" data-has-children="true" data-tooltip="Configurations">
         <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/a2c367ea-4aaa-4456-9e4d-ad7dd06ba6aa" alt="">
         <span class="rail-item-label">Config</span>
       </div>
     </div>
 
     <div class="rail-brand">
-      <img src="bunnypixel2-pixelated.svg" alt="">
+      <img src="Downloads/bunnypixel2-pixelated.svg" alt="">
     </div>
   </div>
 
   <!-- Secondary Panel -->
-  <div class="sidebar-panel collapsed" id="sidebarPanel">
-    <div class="panel-header" id="panelHeader">Dashboard</div>
+  <div class="sidebar-panel" id="sidebarPanel">
+    <div class="panel-header" id="panelHeader">Configurations</div>
     <div class="panel-items" id="panelItems">
-      <!-- Populated by JS -->
+      <div class="panel-item">General</div>
+      <div class="panel-item panel-section">Reviews</div>
+      <div class="panel-subitems">
+        <div class="panel-item sub">Summary</div>
+        <div class="panel-item sub active">Walkthrough</div>
+        <div class="panel-item sub">Behavior</div>
+      </div>
+      <div class="panel-item">Pre-merge checks</div>
+      <div class="panel-item">Code Generation</div>
+      <div class="panel-item">Statuses</div>
+      <div class="panel-item">Fun</div>
+      <div class="panel-mode">
+        <span class="panel-mode-label">Change view:</span>
+        <div class="view-dropdown" style="position:relative;">
+          <div class="select-pill" id="viewDropdownTrigger">
+            <span class="btn-inner"><span id="viewDropdownLabel">Concise</span>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="view-dropdown-menu" id="viewDropdownMenu">
+            <div class="view-dropdown-item active">Concise</div>
+            <div class="view-dropdown-item">All</div>
+            <div class="view-dropdown-item">YAML</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1705,39 +1863,36 @@
       <!-- Settings body -->
       <div class="settings-scroll">
         <div class="settings-container">
+          <div class="settings-card">
 
-          <!-- GROUP 1: Review profile -->
-          <div class="setting-group">
-            <div class="setting-item">
-              <div class="setting-header">
-                <div>
-                  <div class="setting-title">Review profile</div>
-                  <div class="setting-desc">Balance between friendly and critical feedback.</div>
-                </div>
-                <div class="setting-control">
-                  <div class="select-pill">
-                    <span class="btn-inner">Chill
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  </div>
+          <!-- Review profile -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Review profile</div>
+                <div class="setting-desc">Balance between friendly and critical feedback.</div>
+              </div>
+              <div class="setting-control">
+                <div class="select-pill">
+                  <span class="btn-inner">Chill
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="group-divider"></div>
-
-          <!-- GROUP 2: Instructions & Filters -->
-          <div class="setting-group">
-            <div class="setting-item">
-              <div class="setting-header">
-                <div>
-                  <div class="setting-title">Path instructions</div>
-                  <div class="setting-desc">Provide specific additional guidelines for code review based on file paths.</div>
-                </div>
-                <div class="setting-control">
-                  <div class="btn-ghost"><span class="btn-inner">Add new</span></div>
-                </div>
+          <!-- Path instructions -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Path instructions</div>
+                <div class="setting-desc">Provide specific additional guidelines for code review based on file paths.</div>
               </div>
+              <div class="setting-control">
+                <div class="btn-ghost"><span class="btn-inner">Add new</span></div>
+              </div>
+            </div>
+            <div class="setting-subcontent">
               <div class="settings-table">
                 <div class="table-header">
                   <div class="table-header-cell col-path">Path</div>
@@ -1748,131 +1903,150 @@
                   <div class="table-cell col-path">**/.path</div>
                   <div class="table-cell col-instruction">Instructions go here</div>
                   <div class="table-cell col-action">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="4" r="1" fill="#a8a29e"/><circle cx="8" cy="8" r="1" fill="#a8a29e"/><circle cx="8" cy="12" r="1" fill="#a8a29e"/></svg>
-                  </div>
-                </div>
-                <div class="table-row" style="border-top: 1px dashed #e7e5e4;">
-                  <div class="table-cell col-path" style="color: #a8a29e;">+ Add path</div>
-                  <div class="table-cell col-instruction" style="color: #a8a29e;"></div>
-                  <div class="table-cell col-action"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-header">
-                <div>
-                  <div class="setting-title">Path filters</div>
-                  <div class="setting-desc">Define file patterns to include or exclude in reviews.</div>
-                </div>
-              </div>
-              <div class="tag-input-container">
-                <div class="tag">src/** <span class="tag-remove">&times;</span></div>
-                <div class="tag">*.test.ts <span class="tag-remove">&times;</span></div>
-                <div class="tag">docs/ <span class="tag-remove">&times;</span></div>
-                <div class="tag">*.config.* <span class="tag-remove">&times;</span></div>
-                <div class="tag">lib/** <span class="tag-remove">&times;</span></div>
-                <span class="tag-add">+ Add a tag</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="group-divider"></div>
-
-          <!-- GROUP 3: Automatic review -->
-          <div class="setting-group">
-            <div class="setting-item">
-              <div class="setting-header">
-                <div>
-                  <div class="setting-title">Automatic review</div>
-                  <div class="setting-desc">Review PRs automatically.</div>
-                </div>
-                <div class="setting-control">
-                  <div class="toggle-track"><div class="toggle-thumb"></div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="group-divider"></div>
-
-          <!-- GROUP 4: Branches & Labels -->
-          <div class="setting-group">
-            <div class="setting-item">
-              <div class="setting-header">
-                <div>
-                  <div class="setting-title">Base branches</div>
-                  <div class="setting-desc">Base branches (other than the default branch) to review. Accepts regex patterns. Use '.*' to match all branches.</div>
-                </div>
-              </div>
-              <div class="tag-input-container">
-                <div class="tag">main <span class="tag-remove">&times;</span></div>
-                <div class="tag">develop <span class="tag-remove">&times;</span></div>
-                <div class="tag">release/* <span class="tag-remove">&times;</span></div>
-                <div class="tag">staging <span class="tag-remove">&times;</span></div>
-                <span class="tag-add">+ Add a tag</span>
-              </div>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-header">
-                <div>
-                  <div class="setting-title">Labels</div>
-                  <div class="setting-desc">Define file patterns to include or exclude in reviews.</div>
-                </div>
-              </div>
-              <div class="tag-input-container">
-                <div class="tag" style="background: #DBEAFE; color: #1E40AF;">bug <span class="tag-remove" style="color: #60A5FA;">&times;</span></div>
-                <div class="tag" style="background: #F3E8FF; color: #7C3AED;">enhancement <span class="tag-remove" style="color: #A78BFA;">&times;</span></div>
-                <div class="tag" style="background: #FEF3C7; color: #92400E;">security <span class="tag-remove" style="color: #D97706;">&times;</span></div>
-                <div class="tag" style="background: #DCFCE7; color: #166534;">documentation <span class="tag-remove" style="color: #4ADE80;">&times;</span></div>
-                <span class="tag-add">+ Add a tag</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="group-divider"></div>
-
-          <!-- GROUP 5: More settings -->
-          <div class="setting-group">
-            <div class="setting-item">
-              <div class="setting-header">
-                <div>
-                  <div class="setting-title">Review language</div>
-                  <div class="setting-desc">Language to use for code review comments.</div>
-                </div>
-                <div class="setting-control">
-                  <div class="select-pill">
-                    <span class="btn-inner">English
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="4" r="1" fill="currentColor"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="8" cy="12" r="1" fill="currentColor"/></svg>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="setting-item">
-              <div class="setting-header">
-                <div>
-                  <div class="setting-title">Ignore title keywords</div>
-                  <div class="setting-desc">Skip review when PR title contains these keywords.</div>
-                </div>
-                <div class="setting-control">
-                  <div class="toggle-track"><div class="toggle-thumb"></div></div>
-                </div>
+          </div>
+
+          <!-- Path filters -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Path filters</div>
+                <div class="setting-desc">Define file patterns to include or exclude in reviews</div>
               </div>
             </div>
-            <div class="setting-item">
-              <div class="setting-header">
-                <div>
-                  <div class="setting-title">Draft PR reviews</div>
-                  <div class="setting-desc">Automatically review draft pull requests.</div>
-                </div>
-                <div class="setting-control">
-                  <div class="toggle-track" style="background: #d6d3d1;"><div class="toggle-thumb" style="right: auto; left: 2px;"></div></div>
-                </div>
+            <div class="setting-subcontent">
+              <div class="tag-input-container">
+                <div class="tag tag-brand">src/** <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-brand">*.test.ts <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-brand">docs/ <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-brand">*.config.* <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-brand">lib/** <span class="tag-remove">&times;</span></div>
+                <span class="tag-add">Add a tag</span>
               </div>
             </div>
           </div>
 
+          <!-- Automatic review -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Automatic review</div>
+                <div class="setting-desc">Review PRs automatically.</div>
+              </div>
+              <div class="setting-control">
+                <div class="toggle-track on"><div class="toggle-thumb"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Base branches -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Base branches</div>
+                <div class="setting-desc">Base branches (other than the default branch) to review. Accepts regex patterns. Use '.*' to match all branches.</div>
+              </div>
+            </div>
+            <div class="setting-subcontent">
+              <div class="tag-input-container">
+                <div class="tag tag-plain">main <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">develop <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">release/* <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">staging <span class="tag-remove">&times;</span></div>
+                <span class="tag-add">Add a tag</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Labels -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Labels</div>
+                <div class="setting-desc">Define file patterns to include or exclude in reviews</div>
+              </div>
+            </div>
+            <div class="setting-subcontent">
+              <div class="tag-input-container">
+                <div class="tag tag-plain">bug <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">enhancement <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">security <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">documentation <span class="tag-remove">&times;</span></div>
+                <span class="tag-add">Add a tag</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Labeling instructions -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Labeling instructions</div>
+                <div class="setting-desc">Suggest only specified labels if provided; otherwise, base suggestions on previous pull requests and merge requests.</div>
+              </div>
+            </div>
+            <div class="setting-subcontent">
+              <textarea class="setting-textarea" placeholder="Enter labeling instructions..."></textarea>
+            </div>
+          </div>
+
+          <!-- Request changes workflow -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Request changes workflow</div>
+                <div class="setting-desc">Approve when CodeRabbit's comments are resolved and pre-merge checks pass.</div>
+              </div>
+              <div class="setting-control">
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Abort on close -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Abort on close</div>
+                <div class="setting-desc">Abort the in-progress review if the pull request is closed or merged.</div>
+              </div>
+              <div class="setting-control">
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Auto assign reviewers -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Auto assign reviewers</div>
+                <div class="setting-desc">Automatically assign suggested reviewers to the pull request.</div>
+              </div>
+              <div class="setting-control">
+                <div class="toggle-track on"><div class="toggle-thumb"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Auto reply chat -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Auto reply chat</div>
+                <div class="setting-desc">Enable the bot to reply automatically without requiring the user to tag it.</div>
+              </div>
+              <div class="setting-control">
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+              </div>
+            </div>
+          </div>
+
+          </div>
         </div>
       </div>
 
@@ -2227,11 +2401,16 @@
   const childrenMap = {
     planning: { label: 'Planning', items: ['Plans list', 'Plan configuration'] },
     dashboard: { label: 'Dashboard', items: ['Summary', 'Quality metrics', 'Time metrics', 'Data metrics', 'Organizational trends', 'Data export'] },
-    configurations: { label: 'Configurations', items: ['General', 'Integrations', 'Notifications'] },
+    configurations: { label: 'Configurations' },
   };
 
-  let activeNav = 'home';
-  let openPanel = null;
+  // Preserve the hardcoded panel HTML for configurations
+  const configPanelHTML = panelItems.innerHTML;
+  const configModeEl = document.querySelector('.panel-mode');
+  const configModeHTML = configModeEl ? configModeEl.outerHTML : '';
+
+  let activeNav = 'configurations';
+  let openPanel = 'configurations';
 
   function setActive(nav) {
     railItems.forEach(ri => ri.classList.toggle('active', ri.dataset.nav === nav));
@@ -2242,13 +2421,21 @@
     const data = childrenMap[nav];
     if (!data) return;
     panelHeader.textContent = data.label;
-    panelItems.innerHTML = '';
-    data.items.forEach((name, i) => {
-      const el = document.createElement('div');
-      el.className = 'panel-item' + (i === 0 ? ' active' : '');
-      el.textContent = name;
-      panelItems.appendChild(el);
-    });
+
+    if (nav === 'configurations') {
+      panelItems.innerHTML = configPanelHTML;
+      if (configModeEl) configModeEl.style.display = '';
+    } else {
+      panelItems.innerHTML = '';
+      if (configModeEl) configModeEl.style.display = 'none';
+      data.items.forEach((name, i) => {
+        const el = document.createElement('div');
+        el.className = 'panel-item' + (i === 0 ? ' active' : '');
+        el.textContent = name;
+        panelItems.appendChild(el);
+      });
+    }
+
     panel.classList.remove('collapsed');
     sidebar.classList.add('panel-open');
     openPanel = nav;
@@ -2427,6 +2614,40 @@
       setRest(state);
     });
   });
+})();
+</script>
+
+<script>
+// Toggle click handlers
+document.querySelectorAll('.toggle-track').forEach(track => {
+  track.addEventListener('click', () => {
+    track.classList.toggle('on');
+  });
+});
+
+// View dropdown
+(function() {
+  const trigger = document.getElementById('viewDropdownTrigger');
+  const menu = document.getElementById('viewDropdownMenu');
+  const label = document.getElementById('viewDropdownLabel');
+  if (!trigger || !menu) return;
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu.classList.toggle('visible');
+  });
+
+  menu.querySelectorAll('.view-dropdown-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menu.querySelectorAll('.view-dropdown-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      label.textContent = item.textContent;
+      menu.classList.remove('visible');
+    });
+  });
+
+  document.addEventListener('click', () => menu.classList.remove('visible'));
 })();
 </script>
 </body>
