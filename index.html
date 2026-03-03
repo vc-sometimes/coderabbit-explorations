@@ -4,9 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>2. Dot Grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<script>
+(function(){var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');else if(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');})();
+</script>
 <style>
+  html:not(.ready) * {
+    transition: none !important;
+  }
+  html:not(.ready) *::before,
+  html:not(.ready) *::after {
+    transition: none !important;
+  }
+  .skeleton-line::after,
+  .skeleton-control::after {
+    animation: shimmer 1.6s ease-in-out infinite !important;
+  }
   :root {
     --bg: #fafaf9;
     --bg-content: #FFFFFF;
@@ -27,8 +43,10 @@
     --shadow-md: rgba(12,10,9,0.1);
     --shadow-lg: rgba(12,10,9,0.12);
     --dot-color: rgba(12,10,9,0.07);
-    --sidebar-fade: rgba(250,250,249,0.7);
-    --sidebar-fade-end: rgba(250,250,249,0);
+    --grid-color: rgba(12,10,9,0.06);
+    --grid-color-major: rgba(12,10,9,0.10);
+    --sidebar-fade: #f5f5f4;
+    --sidebar-fade-end: #f5f5f4;
     --inner-border-top: rgba(255,255,255,0.9);
     --inner-border-left: rgba(255,255,255,0.5);
     --inner-border-right: rgba(12,10,9,0.04);
@@ -66,6 +84,8 @@
     --shadow-md: rgba(0,0,0,0.3);
     --shadow-lg: rgba(0,0,0,0.4);
     --dot-color: rgba(250,250,249,0.06);
+    --grid-color: rgba(250,250,249,0.04);
+    --grid-color-major: rgba(250,250,249,0.07);
     --sidebar-fade: rgba(12,10,9,0.7);
     --sidebar-fade-end: rgba(12,10,9,0);
     --inner-border-top: rgba(255,255,255,0.08);
@@ -92,11 +112,6 @@
   body.theme-transitioning *::after {
     transition: background 0.4s ease, background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, fill 0.4s ease, stroke 0.4s ease, opacity 0.4s ease, filter 0.4s ease !important;
   }
-  body.theme-transitioning .sidebar::before,
-  body.theme-transitioning .sidebar::after {
-    opacity: 0 !important;
-    transition: none !important;
-  }
   body {
     font-family: 'Geist', 'Inter', -apple-system, sans-serif;
     background: var(--bg);
@@ -106,8 +121,6 @@
     overflow: hidden;
     display: flex;
     -webkit-font-smoothing: antialiased;
-    background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
-    background-size: 20px 20px;
   }
 
   /* ---- SIDEBAR ---- */
@@ -127,22 +140,8 @@
   .sidebar:not(.panel-open) {
     width: 56px;
   }
-  .sidebar::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
-    mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
-    z-index: -1;
-  }
-  .sidebar::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right, var(--sidebar-fade) 0%, var(--sidebar-fade-end) 100%);
-    z-index: -1;
+  .sidebar {
+    background: var(--sidebar-fade);
   }
 
   /* ---- ICON RAIL ---- */
@@ -314,7 +313,8 @@
     color: var(--muted);
     flex-shrink: 0;
   }
-  .rail-item:hover { background: var(--hover); color: var(--tag-fg); }
+  .rail-item:hover { background: rgba(12,10,9,0.06); color: var(--tag-fg); }
+  [data-theme="dark"] .rail-item:hover { background: rgba(250,250,249,0.08); }
   .rail-item.active {
     background: var(--rail-active-bg);
     border: 1px solid var(--rail-active-border);
@@ -333,7 +333,7 @@
     filter: invert(0.7);
   }
   [data-theme="dark"] .rail-item.active .pixelicon {
-    filter: var(--icon-active-filter);
+    filter: invert(1) brightness(0.98);
   }
   .rail-item .pixelicon {
     width: 16px; height: 16px;
@@ -428,7 +428,8 @@
     flex: 1;
     min-width: 0;
     height: 100%;
-    border-left: 1px solid var(--border-light);
+    border-left: 1px solid var(--border);
+    box-shadow: inset 1px 0 0 0 var(--divider-highlight);
     display: flex;
     flex-direction: column;
     padding: 0 14px 12px;
@@ -538,7 +539,7 @@
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
-    min-width: 140px;
+    min-width: 100%;
     background: var(--bg-content);
     border: 1px solid var(--border);
     border-radius: 4px;
@@ -1044,7 +1045,7 @@
   .top-header {
     height: 56px;
     width: 100%;
-    background: transparent;
+    background: var(--sidebar-fade);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1074,7 +1075,7 @@
     box-shadow: 0 1px 2px rgba(12,10,9,0.05);
     transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
-  .header-dropdown-github:hover { background: var(--border-light); box-shadow: 0 2px 4px var(--shadow-md); }
+  .header-dropdown-github:hover { background: var(--border-light); border-color: var(--muted-more); box-shadow: 0 2px 4px var(--shadow-md); }
   .header-dropdown-github.active { background: var(--border-light); box-shadow: 0 2px 4px var(--shadow-md); border-color: var(--fg); }
   .header-dropdown-github .btn-inner {
     display: flex;
@@ -1104,7 +1105,7 @@
     box-shadow: 0 1px 2px rgba(12,10,9,0.05);
     transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
-  .header-dropdown-org:hover { background: var(--border-light); box-shadow: 0 2px 4px var(--shadow-md); }
+  .header-dropdown-org:hover { background: var(--border-light); border-color: var(--muted-more); box-shadow: 0 2px 4px var(--shadow-md); }
   .header-dropdown-org.active { background: var(--border-light); box-shadow: 0 2px 4px var(--shadow-md); border-color: var(--fg); }
   .header-dropdown-org .btn-inner {
     display: flex;
@@ -1171,7 +1172,7 @@
   /* ---- CONTENT PAGE HEADER (inside border) ---- */
   .page-header {
     height: 48px;
-    background: var(--bg-content);
+    background: var(--sidebar-fade);
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
@@ -1288,6 +1289,100 @@
   .setting-item:last-child { border-bottom: none; box-shadow: none; }
   .setting-item:hover { background: rgba(255,255,255,0.4); }
   [data-theme="dark"] .setting-item:hover { background: rgba(255,255,255,0.03); }
+
+  /* ---- SKELETON LOADERS ---- */
+  .skeleton-group {
+    transition: opacity 0.35s ease;
+  }
+  .settings-content {
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  html.ready .skeleton-group {
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+  html.ready .settings-content {
+    opacity: 1;
+  }
+  .skeleton-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 0 0 var(--divider-highlight);
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .skeleton-item:last-child { border-bottom: none; box-shadow: none; }
+  .skeleton-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .skeleton-line {
+    height: 12px;
+    border-radius: 4px;
+    background: var(--border-light);
+    position: relative;
+    overflow: hidden;
+  }
+  .skeleton-line.title {
+    height: 14px;
+    width: 40%;
+  }
+  .skeleton-line.desc {
+    height: 12px;
+    width: 65%;
+  }
+  .skeleton-control {
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
+    background: var(--border-light);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .skeleton-line::after,
+  .skeleton-control::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255,255,255,0.4) 50%,
+      transparent 100%
+    );
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+  [data-theme="dark"] .skeleton-line::after,
+  [data-theme="dark"] .skeleton-control::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255,255,255,0.06) 50%,
+      transparent 100%
+    );
+  }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  .skeleton-item:nth-child(1) .skeleton-line, .skeleton-item:nth-child(1) .skeleton-control { animation-delay: 0s; }
+  .skeleton-item:nth-child(2) .skeleton-line, .skeleton-item:nth-child(2) .skeleton-control { animation-delay: 0.08s; }
+  .skeleton-item:nth-child(3) .skeleton-line, .skeleton-item:nth-child(3) .skeleton-control { animation-delay: 0.16s; }
+  .skeleton-item:nth-child(4) .skeleton-line, .skeleton-item:nth-child(4) .skeleton-control { animation-delay: 0.24s; }
+  .skeleton-item:nth-child(5) .skeleton-line, .skeleton-item:nth-child(5) .skeleton-control { animation-delay: 0.32s; }
+  .skeleton-item:nth-child(6) .skeleton-line, .skeleton-item:nth-child(6) .skeleton-control { animation-delay: 0.40s; }
 
   .setting-row {
     display: flex;
@@ -1567,9 +1662,6 @@
       max-height: 80vh;
       overflow-y: auto;
     }
-    .sidebar::before, .sidebar::after {
-      display: none;
-    }
     .sidebar-rail { width: 56px; }
     .sidebar-panel { left: 0; width: 100vw; border-right: none; }
     .rail-bottom { display: none; }
@@ -1624,11 +1716,11 @@
         </div>
         <div class="workspace-switcher-footer">
           <div class="workspace-switcher-footer-item">
-            <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/4f01c6c2-314e-4381-9163-ab91ccfedc3a" alt="">
+            <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/plus.svg" alt="">
             Create workspace
           </div>
           <div class="workspace-switcher-footer-item">
-            <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/a2c367ea-4aaa-4456-9e4d-ad7dd06ba6aa" alt="">
+            <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/settings-cog.svg" alt="">
             Manage workspaces
           </div>
         </div>
@@ -1637,42 +1729,42 @@
 
     <div class="rail-items">
       <div class="rail-item" data-nav="search" data-tooltip="Search">
-        <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/ca48a9e7-93fc-4b74-a1b7-1ec146f0ae03" alt="">
+        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/search.svg" alt="">
         <span class="rail-item-label">Search</span>
       </div>
       <div class="rail-item" data-nav="home" data-tooltip="Home">
-        <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/f1a2d85d-9972-4af1-b211-7eeb36bf2b0e" alt="">
+        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/home.svg" alt="">
         <span class="rail-item-label">Home</span>
       </div>
       <div class="rail-item" data-nav="organizations" data-tooltip="Organizations">
-        <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/4f01c6c2-314e-4381-9163-ab91ccfedc3a" alt="">
+        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/users.svg" alt="">
         <span class="rail-item-label">Orgs</span>
       </div>
       <div class="rail-item" data-nav="reports" data-tooltip="Reports">
-        <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/b2fa25d4-8c43-470d-a37f-f89df6510c11" alt="">
+        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/chart-bar-big.svg" alt="">
         <span class="rail-item-label">Reports</span>
       </div>
       <div class="rail-item" data-nav="learnings" data-tooltip="Learnings">
-        <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/f8bbe676-48e8-4c0a-b5df-4740e82710ca" alt="">
+        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/book-open.svg" alt="">
         <span class="rail-item-label">Learnings</span>
       </div>
       <div class="rail-item" data-nav="repositories" data-tooltip="Repositories">
-        <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/0db5a936-f853-41d9-99ee-9199361abd9f" alt="">
+        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/git-branch.svg" alt="">
         <span class="rail-item-label">Repos</span>
       </div>
 
       <div class="rail-separator"></div>
 
       <div class="rail-item" data-nav="planning" data-has-children="true" data-tooltip="Planning">
-        <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/42848d37-087a-4528-b3e6-0c61cab64c58" alt="">
+        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/calendar.svg" alt="">
         <span class="rail-item-label">Planning</span>
       </div>
       <div class="rail-item" data-nav="dashboard" data-has-children="true" data-tooltip="Dashboard">
-        <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/c3e1e890-40c5-424d-8670-59507e5b91b5" alt="">
+        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/grid-2x2-2.svg" alt="">
         <span class="rail-item-label">Dashboard</span>
       </div>
       <div class="rail-item active" data-nav="configurations" data-has-children="true" data-tooltip="Configurations">
-        <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/a2c367ea-4aaa-4456-9e4d-ad7dd06ba6aa" alt="">
+        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/settings-cog.svg" alt="">
         <span class="rail-item-label">Config</span>
       </div>
     </div>
@@ -1768,7 +1860,7 @@
         </span>
         <div class="org-switcher" id="orgSwitcher">
           <div class="cmd-input-wrap" style="border-bottom: 1px solid var(--border-light); padding: 8px 10px;">
-            <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/ca48a9e7-93fc-4b74-a1b7-1ec146f0ae03" alt="" style="width:14px;height:14px;">
+            <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/search.svg" alt="" style="width:14px;height:14px;">
             <input class="cmd-input" id="orgSearchInput" type="text" placeholder="Search organizations..." style="font-size:13px;">
           </div>
           <div class="org-switcher-list" id="orgSearchList" style="padding: 6px;">
@@ -1782,11 +1874,11 @@
           </div>
           <div class="org-switcher-footer">
             <div class="org-switcher-footer-item">
-              <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/4f01c6c2-314e-4381-9163-ab91ccfedc3a" alt="">
+              <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/plus.svg" alt="">
               Create organization
             </div>
             <div class="org-switcher-footer-item">
-              <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/a2c367ea-4aaa-4456-9e4d-ad7dd06ba6aa" alt="">
+              <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/settings-cog.svg" alt="">
               Manage organizations
             </div>
           </div>
@@ -1865,6 +1957,17 @@
         <div class="settings-container">
           <div class="settings-card">
 
+          <!-- Skeleton loaders -->
+          <div class="skeleton-group">
+            <div class="skeleton-item"><div class="skeleton-text"><div class="skeleton-line title" style="width:38%"></div><div class="skeleton-line desc" style="width:62%"></div></div><div class="skeleton-control"></div></div>
+            <div class="skeleton-item"><div class="skeleton-text"><div class="skeleton-line title" style="width:30%"></div><div class="skeleton-line desc" style="width:72%"></div></div><div class="skeleton-control" style="width:64px;border-radius:4px;height:28px"></div></div>
+            <div class="skeleton-item"><div class="skeleton-text"><div class="skeleton-line title" style="width:26%"></div><div class="skeleton-line desc" style="width:58%"></div></div></div>
+            <div class="skeleton-item"><div class="skeleton-text"><div class="skeleton-line title" style="width:34%"></div><div class="skeleton-line desc" style="width:48%"></div></div><div class="skeleton-control"></div></div>
+            <div class="skeleton-item"><div class="skeleton-text"><div class="skeleton-line title" style="width:28%"></div><div class="skeleton-line desc" style="width:68%"></div></div></div>
+            <div class="skeleton-item"><div class="skeleton-text"><div class="skeleton-line title" style="width:42%"></div><div class="skeleton-line desc" style="width:55%"></div></div><div class="skeleton-control"></div></div>
+          </div>
+
+          <div class="settings-content">
           <!-- Review profile -->
           <div class="setting-item">
             <div class="setting-row">
@@ -1920,11 +2023,11 @@
             </div>
             <div class="setting-subcontent">
               <div class="tag-input-container">
-                <div class="tag tag-brand">src/** <span class="tag-remove">&times;</span></div>
-                <div class="tag tag-brand">*.test.ts <span class="tag-remove">&times;</span></div>
-                <div class="tag tag-brand">docs/ <span class="tag-remove">&times;</span></div>
-                <div class="tag tag-brand">*.config.* <span class="tag-remove">&times;</span></div>
-                <div class="tag tag-brand">lib/** <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">src/** <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">*.test.ts <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">docs/ <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">*.config.* <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">lib/** <span class="tag-remove">&times;</span></div>
                 <span class="tag-add">Add a tag</span>
               </div>
             </div>
@@ -2046,6 +2149,8 @@
             </div>
           </div>
 
+          </div><!-- /.settings-content -->
+
           </div>
         </div>
       </div>
@@ -2058,21 +2163,21 @@
 <div class="cmd-overlay" id="cmdOverlay">
   <div class="cmd-palette">
     <div class="cmd-input-wrap">
-      <img class="pixelicon" src="https://www.figma.com/api/mcp/asset/ca48a9e7-93fc-4b74-a1b7-1ec146f0ae03" alt="">
+      <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/search.svg" alt="">
       <input class="cmd-input" id="cmdInput" type="text" placeholder="Search or jump to..." autofocus>
       <span class="cmd-kbd">ESC</span>
     </div>
     <div class="cmd-results" id="cmdResults">
       <div class="cmd-section-label">Pages</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://www.figma.com/api/mcp/asset/f1a2d85d-9972-4af1-b211-7eeb36bf2b0e" alt="">Home</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://www.figma.com/api/mcp/asset/4f01c6c2-314e-4381-9163-ab91ccfedc3a" alt="">Organizations</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://www.figma.com/api/mcp/asset/b2fa25d4-8c43-470d-a37f-f89df6510c11" alt="">Reports</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://www.figma.com/api/mcp/asset/f8bbe676-48e8-4c0a-b5df-4740e82710ca" alt="">Learnings</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://www.figma.com/api/mcp/asset/0db5a936-f853-41d9-99ee-9199361abd9f" alt="">Repositories</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/home.svg" alt="">Home</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/users.svg" alt="">Organizations</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/chart-bar-big.svg" alt="">Reports</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/book-open.svg" alt="">Learnings</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/git-branch.svg" alt="">Repositories</div>
       <div class="cmd-section-label">Tools</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://www.figma.com/api/mcp/asset/42848d37-087a-4528-b3e6-0c61cab64c58" alt="">Planning</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://www.figma.com/api/mcp/asset/c3e1e890-40c5-424d-8670-59507e5b91b5" alt="">Dashboard</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://www.figma.com/api/mcp/asset/a2c367ea-4aaa-4456-9e4d-ad7dd06ba6aa" alt="">Configurations</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/calendar.svg" alt="">Planning</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/grid-2x2-2.svg" alt="">Dashboard</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/settings-cog.svg" alt="">Configurations</div>
     </div>
   </div>
 </div>
@@ -2220,6 +2325,12 @@
 
   // Appearance toggle
   const appearanceToggle = document.getElementById('appearanceToggle');
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    appearanceToggle.querySelectorAll('button').forEach(b => {
+      b.classList.toggle('active', b.dataset.theme === savedTheme);
+    });
+  }
   appearanceToggle.addEventListener('click', (e) => {
     e.stopPropagation();
     const btn = e.target.closest('button');
@@ -2228,6 +2339,7 @@
     btn.classList.add('active');
     const theme = btn.dataset.theme;
     document.body.classList.add('theme-transitioning');
+    localStorage.setItem('theme', theme);
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
     } else if (theme === 'light') {
@@ -2425,6 +2537,7 @@
     if (nav === 'configurations') {
       panelItems.innerHTML = configPanelHTML;
       if (configModeEl) configModeEl.style.display = '';
+      if (typeof initViewDropdown === 'function') initViewDropdown();
     } else {
       panelItems.innerHTML = '';
       if (configModeEl) configModeEl.style.display = 'none';
@@ -2626,7 +2739,7 @@ document.querySelectorAll('.toggle-track').forEach(track => {
 });
 
 // View dropdown
-(function() {
+function initViewDropdown() {
   const trigger = document.getElementById('viewDropdownTrigger');
   const menu = document.getElementById('viewDropdownMenu');
   const label = document.getElementById('viewDropdownLabel');
@@ -2642,13 +2755,17 @@ document.querySelectorAll('.toggle-track').forEach(track => {
       e.stopPropagation();
       menu.querySelectorAll('.view-dropdown-item').forEach(i => i.classList.remove('active'));
       item.classList.add('active');
-      label.textContent = item.textContent;
+      if (label) label.textContent = item.textContent;
       menu.classList.remove('visible');
     });
   });
-
-  document.addEventListener('click', () => menu.classList.remove('visible'));
-})();
+}
+initViewDropdown();
+document.addEventListener('click', () => {
+  const m = document.getElementById('viewDropdownMenu');
+  if (m) m.classList.remove('visible');
+});
 </script>
+<script>window.addEventListener('load',()=>{setTimeout(()=>document.documentElement.classList.add('ready'),50);});</script>
 </body>
 </html>
