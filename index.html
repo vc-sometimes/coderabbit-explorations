@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>2. Dot Grid</title>
+<title>Settings</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -396,6 +396,15 @@
   .rail-brand img.bunny-hop {
     animation: bunnyHop 0.6s ease forwards;
   }
+  .rail-brand img.bunny-spin {
+    animation: bunnySpin 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+  .rail-brand img.bunny-wiggle {
+    animation: bunnyWiggle 0.4s ease forwards;
+  }
+  .rail-brand img.bunny-peek {
+    animation: bunnyPeek 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
   @keyframes bunnyHop {
     0%   { transform: translateY(0) scaleY(1); }
     15%  { transform: translateY(2px) scaleY(0.85) scaleX(1.1); }
@@ -403,6 +412,24 @@
     60%  { transform: translateY(0) scaleY(0.9); }
     75%  { transform: translateY(-3px); }
     100% { transform: translateY(0) scaleY(1); }
+  }
+  @keyframes bunnySpin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes bunnyWiggle {
+    0%   { transform: rotate(0deg); }
+    20%  { transform: rotate(-12deg); }
+    40%  { transform: rotate(10deg); }
+    60%  { transform: rotate(-6deg); }
+    80%  { transform: rotate(3deg); }
+    100% { transform: rotate(0deg); }
+  }
+  @keyframes bunnyPeek {
+    0%   { transform: translateY(0) scale(1); }
+    30%  { transform: translateY(-4px) scale(1.15); }
+    50%  { transform: translateY(-4px) scale(1.15); }
+    100% { transform: translateY(0) scale(1); }
   }
   .rail-bottom {
     padding: 4px 0;
@@ -643,6 +670,23 @@
     max-height: 280px;
     overflow-y: auto;
   }
+  .cmd-empty {
+    display: none;
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--muted-more);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .cmd-empty-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .cmd-results.no-results .cmd-empty { display: block; }
+  .cmd-results.no-results .cmd-section-label,
+  .cmd-results.no-results .cmd-result { display: none; }
   .cmd-section-label {
     font-size: 10px;
     font-weight: 600;
@@ -1180,12 +1224,6 @@
     padding: 8px 12px;
     flex-shrink: 0;
   }
-  .page-header-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    opacity: 0;
-  }
   .page-title {
     font-size: 14px;
     font-weight: 400;
@@ -1261,7 +1299,38 @@
     display: flex;
     justify-content: center;
     width: 100%;
+    position: relative;
   }
+  /* Scroll shadows — subtle fade at top/bottom indicating more content */
+  .settings-scroll-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .settings-scroll-wrap::before,
+  .settings-scroll-wrap::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 32px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .settings-scroll-wrap::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--bg-content), transparent);
+  }
+  .settings-scroll-wrap::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--bg-content), transparent);
+  }
+  .settings-scroll-wrap.scroll-top::before { opacity: 1; }
+  .settings-scroll-wrap.scroll-bottom::after { opacity: 1; }
   .settings-container {
     width: 100%;
     max-width: 696px;
@@ -1289,6 +1358,22 @@
   .setting-item:last-child { border-bottom: none; box-shadow: none; }
   .setting-item:hover { background: rgba(255,255,255,0.4); }
   [data-theme="dark"] .setting-item:hover { background: rgba(255,255,255,0.03); }
+
+  /* Section headers inside settings card */
+  .setting-section-header {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted-more);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 20px 0 4px;
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .setting-section-header:first-child {
+    padding-top: 12px;
+  }
 
   /* ---- SKELETON LOADERS ---- */
   .skeleton-group {
@@ -1403,10 +1488,10 @@
     line-height: 18px;
   }
   .setting-desc {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 400;
     color: var(--muted);
-    line-height: 18px;
+    line-height: 17px;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -1642,6 +1727,61 @@
   .setting-textarea::placeholder { color: var(--muted); }
   .setting-textarea:focus { border-color: var(--muted-more); }
 
+  /* ---- ANIMATION SYSTEM ---- */
+
+  /* Staggered settings entrance */
+  html.ready .settings-content .setting-item {
+    animation: settingReveal 0.45s cubic-bezier(0.25, 1, 0.5, 1) both;
+  }
+  html.ready .settings-content .setting-item:nth-of-type(1) { animation-delay: 0.02s; }
+  html.ready .settings-content .setting-item:nth-of-type(2) { animation-delay: 0.06s; }
+  html.ready .settings-content .setting-item:nth-of-type(3) { animation-delay: 0.10s; }
+  html.ready .settings-content .setting-item:nth-of-type(4) { animation-delay: 0.14s; }
+  html.ready .settings-content .setting-item:nth-of-type(5) { animation-delay: 0.18s; }
+  html.ready .settings-content .setting-item:nth-of-type(6) { animation-delay: 0.22s; }
+  html.ready .settings-content .setting-item:nth-of-type(7) { animation-delay: 0.26s; }
+  html.ready .settings-content .setting-item:nth-of-type(8) { animation-delay: 0.30s; }
+  html.ready .settings-content .setting-item:nth-of-type(9) { animation-delay: 0.34s; }
+  html.ready .settings-content .setting-item:nth-of-type(10) { animation-delay: 0.38s; }
+  @keyframes settingReveal {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Chevron rotation on open dropdown */
+  .select-pill svg,
+  .header-dropdown-github svg:last-child,
+  .header-dropdown-org svg:last-child {
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .select-pill.open svg {
+    transform: rotate(180deg);
+  }
+
+  /* Tag removal animation */
+  .tag {
+    transition: opacity 0.15s ease, transform 0.15s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .tag.removing {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  /* prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   /* ---- RESPONSIVE ---- */
   @media (max-width: 1024px) {
     .settings-container { max-width: 100%; padding: 0 16px; }
@@ -1716,11 +1856,11 @@
         </div>
         <div class="workspace-switcher-footer">
           <div class="workspace-switcher-footer-item">
-            <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/plus.svg" alt="">
+            <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/System/add-line.svg" alt="">
             Create workspace
           </div>
           <div class="workspace-switcher-footer-item">
-            <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/settings-cog.svg" alt="">
+            <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/System/settings-3-line.svg" alt="">
             Manage workspaces
           </div>
         </div>
@@ -1729,42 +1869,42 @@
 
     <div class="rail-items">
       <div class="rail-item" data-nav="search" data-tooltip="Search">
-        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/search.svg" alt="">
+        <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/System/search-line.svg" alt="">
         <span class="rail-item-label">Search</span>
       </div>
       <div class="rail-item" data-nav="home" data-tooltip="Home">
-        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/home.svg" alt="">
+        <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Buildings/home-2-line.svg" alt="">
         <span class="rail-item-label">Home</span>
       </div>
       <div class="rail-item" data-nav="organizations" data-tooltip="Organizations">
-        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/users.svg" alt="">
+        <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/User%20%26%20Faces/group-line.svg" alt="">
         <span class="rail-item-label">Orgs</span>
       </div>
       <div class="rail-item" data-nav="reports" data-tooltip="Reports">
-        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/chart-bar-big.svg" alt="">
+        <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Business/bar-chart-2-line.svg" alt="">
         <span class="rail-item-label">Reports</span>
       </div>
       <div class="rail-item" data-nav="learnings" data-tooltip="Learnings">
-        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/book-open.svg" alt="">
+        <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Document/book-open-line.svg" alt="">
         <span class="rail-item-label">Learnings</span>
       </div>
       <div class="rail-item" data-nav="repositories" data-tooltip="Repositories">
-        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/git-branch.svg" alt="">
+        <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Development/git-branch-line.svg" alt="">
         <span class="rail-item-label">Repos</span>
       </div>
 
       <div class="rail-separator"></div>
 
       <div class="rail-item" data-nav="planning" data-has-children="true" data-tooltip="Planning">
-        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/calendar.svg" alt="">
+        <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Business/calendar-line.svg" alt="">
         <span class="rail-item-label">Planning</span>
       </div>
       <div class="rail-item" data-nav="dashboard" data-has-children="true" data-tooltip="Dashboard">
-        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/grid-2x2-2.svg" alt="">
+        <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Design/layout-grid-line.svg" alt="">
         <span class="rail-item-label">Dashboard</span>
       </div>
       <div class="rail-item active" data-nav="configurations" data-has-children="true" data-tooltip="Configurations">
-        <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/settings-cog.svg" alt="">
+        <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/System/settings-3-line.svg" alt="">
         <span class="rail-item-label">Config</span>
       </div>
     </div>
@@ -1776,7 +1916,7 @@
 
   <!-- Secondary Panel -->
   <div class="sidebar-panel" id="sidebarPanel">
-    <div class="panel-header" id="panelHeader">Configurations</div>
+    <div class="panel-header" id="panelHeader"></div>
     <div class="panel-items" id="panelItems">
       <div class="panel-item">General</div>
       <div class="panel-item panel-section">Reviews</div>
@@ -1860,7 +2000,7 @@
         </span>
         <div class="org-switcher" id="orgSwitcher">
           <div class="cmd-input-wrap" style="border-bottom: 1px solid var(--border-light); padding: 8px 10px;">
-            <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/search.svg" alt="" style="width:14px;height:14px;">
+            <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/System/search-line.svg" alt="" style="width:14px;height:14px;">
             <input class="cmd-input" id="orgSearchInput" type="text" placeholder="Search organizations..." style="font-size:13px;">
           </div>
           <div class="org-switcher-list" id="orgSearchList" style="padding: 6px;">
@@ -1874,11 +2014,11 @@
           </div>
           <div class="org-switcher-footer">
             <div class="org-switcher-footer-item">
-              <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/plus.svg" alt="">
+              <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/System/add-line.svg" alt="">
               Create organization
             </div>
             <div class="org-switcher-footer-item">
-              <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/settings-cog.svg" alt="">
+              <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/System/settings-3-line.svg" alt="">
               Manage organizations
             </div>
           </div>
@@ -1887,10 +2027,10 @@
     </div>
     <div class="header-right">
       <div class="header-icon-btn">
-        <canvas class="pixelicon-canvas" id="helpPixelicon" width="16" height="16" style="width:16px;height:16px;image-rendering:pixelated;"></canvas>
+        <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/System/question-line.svg" alt="" style="width:18px;height:18px;">
       </div>
       <div class="header-icon-btn">
-        <canvas class="pixelicon-canvas" id="bellPixelicon" width="16" height="16" style="width:16px;height:16px;image-rendering:pixelated;"></canvas>
+        <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Media/notification-2-line.svg" alt="" style="width:18px;height:18px;">
       </div>
       <div class="header-avatar" id="avatarBtn" style="position: relative;">
         <div class="avatar-menu" id="avatarMenu">
@@ -1941,19 +2081,16 @@
 
       <!-- Page sub-header inside the border -->
       <div class="page-header">
-        <div class="page-header-left">
-          <div class="btn-secondary"><span class="btn-inner">Secondary</span></div>
-          <div class="btn-primary"><span class="btn-primary-inner">Primary</span></div>
-        </div>
-        <span class="page-title">Configuration</span>
+        <span class="page-title">Configurations</span>
         <div class="page-header-right">
-          <div class="btn-secondary"><span class="btn-inner">Secondary</span></div>
-          <div class="btn-primary"><span class="btn-primary-inner">Primary</span></div>
+          <div class="btn-secondary"><span class="btn-inner" style="gap:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg> Preview</span></div>
+          <div class="btn-primary"><span class="btn-primary-inner">Apply changes</span></div>
         </div>
       </div>
 
       <!-- Settings body -->
-      <div class="settings-scroll">
+      <div class="settings-scroll-wrap" id="scrollWrap">
+      <div class="settings-scroll" id="settingsScroll">
         <div class="settings-container">
           <div class="settings-card">
 
@@ -1968,6 +2105,9 @@
           </div>
 
           <div class="settings-content">
+
+          <div class="setting-section-header">Review</div>
+
           <!-- Review profile -->
           <div class="setting-item">
             <div class="setting-row">
@@ -2033,6 +2173,8 @@
             </div>
           </div>
 
+          <div class="setting-section-header">Automation</div>
+
           <!-- Automatic review -->
           <div class="setting-item">
             <div class="setting-row">
@@ -2043,57 +2185,6 @@
               <div class="setting-control">
                 <div class="toggle-track on"><div class="toggle-thumb"></div></div>
               </div>
-            </div>
-          </div>
-
-          <!-- Base branches -->
-          <div class="setting-item">
-            <div class="setting-row">
-              <div class="setting-text">
-                <div class="setting-title">Base branches</div>
-                <div class="setting-desc">Base branches (other than the default branch) to review. Accepts regex patterns. Use '.*' to match all branches.</div>
-              </div>
-            </div>
-            <div class="setting-subcontent">
-              <div class="tag-input-container">
-                <div class="tag tag-plain">main <span class="tag-remove">&times;</span></div>
-                <div class="tag tag-plain">develop <span class="tag-remove">&times;</span></div>
-                <div class="tag tag-plain">release/* <span class="tag-remove">&times;</span></div>
-                <div class="tag tag-plain">staging <span class="tag-remove">&times;</span></div>
-                <span class="tag-add">Add a tag</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Labels -->
-          <div class="setting-item">
-            <div class="setting-row">
-              <div class="setting-text">
-                <div class="setting-title">Labels</div>
-                <div class="setting-desc">Define file patterns to include or exclude in reviews</div>
-              </div>
-            </div>
-            <div class="setting-subcontent">
-              <div class="tag-input-container">
-                <div class="tag tag-plain">bug <span class="tag-remove">&times;</span></div>
-                <div class="tag tag-plain">enhancement <span class="tag-remove">&times;</span></div>
-                <div class="tag tag-plain">security <span class="tag-remove">&times;</span></div>
-                <div class="tag tag-plain">documentation <span class="tag-remove">&times;</span></div>
-                <span class="tag-add">Add a tag</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Labeling instructions -->
-          <div class="setting-item">
-            <div class="setting-row">
-              <div class="setting-text">
-                <div class="setting-title">Labeling instructions</div>
-                <div class="setting-desc">Suggest only specified labels if provided; otherwise, base suggestions on previous pull requests and merge requests.</div>
-              </div>
-            </div>
-            <div class="setting-subcontent">
-              <textarea class="setting-textarea" placeholder="Enter labeling instructions..."></textarea>
             </div>
           </div>
 
@@ -2149,11 +2240,65 @@
             </div>
           </div>
 
+          <div class="setting-section-header">Labels & branches</div>
+
+          <!-- Base branches -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Base branches</div>
+                <div class="setting-desc">Base branches (other than the default branch) to review. Accepts regex patterns. Use '.*' to match all branches.</div>
+              </div>
+            </div>
+            <div class="setting-subcontent">
+              <div class="tag-input-container">
+                <div class="tag tag-plain">main <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">develop <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">release/* <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">staging <span class="tag-remove">&times;</span></div>
+                <span class="tag-add">Add a tag</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Labels -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Labels</div>
+                <div class="setting-desc">Define file patterns to include or exclude in reviews</div>
+              </div>
+            </div>
+            <div class="setting-subcontent">
+              <div class="tag-input-container">
+                <div class="tag tag-plain">bug <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">enhancement <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">security <span class="tag-remove">&times;</span></div>
+                <div class="tag tag-plain">documentation <span class="tag-remove">&times;</span></div>
+                <span class="tag-add">Add a tag</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Labeling instructions -->
+          <div class="setting-item">
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-title">Labeling instructions</div>
+                <div class="setting-desc">Suggest only specified labels if provided; otherwise, base suggestions on previous pull requests and merge requests.</div>
+              </div>
+            </div>
+            <div class="setting-subcontent">
+              <textarea class="setting-textarea" placeholder="Enter labeling instructions..."></textarea>
+            </div>
+          </div>
+
           </div><!-- /.settings-content -->
 
           </div>
         </div>
       </div>
+      </div><!-- /.settings-scroll-wrap -->
 
     </div>
   </div>
@@ -2163,21 +2308,25 @@
 <div class="cmd-overlay" id="cmdOverlay">
   <div class="cmd-palette">
     <div class="cmd-input-wrap">
-      <img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/search.svg" alt="">
+      <img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/System/search-line.svg" alt="">
       <input class="cmd-input" id="cmdInput" type="text" placeholder="Search or jump to..." autofocus>
       <span class="cmd-kbd">ESC</span>
     </div>
     <div class="cmd-results" id="cmdResults">
+      <div class="cmd-empty">
+        <div class="cmd-empty-title">No results found</div>
+        Nothing matched your search. Try something shorter.
+      </div>
       <div class="cmd-section-label">Pages</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/home.svg" alt="">Home</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/users.svg" alt="">Organizations</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/chart-bar-big.svg" alt="">Reports</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/book-open.svg" alt="">Learnings</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/git-branch.svg" alt="">Repositories</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Buildings/home-2-line.svg" alt="">Home</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/User%20%26%20Faces/group-line.svg" alt="">Organizations</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Business/bar-chart-2-line.svg" alt="">Reports</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Document/book-open-line.svg" alt="">Learnings</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Development/git-branch-line.svg" alt="">Repositories</div>
       <div class="cmd-section-label">Tools</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/calendar.svg" alt="">Planning</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/grid-2x2-2.svg" alt="">Dashboard</div>
-      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/pixelarticons@2.0.2/svg/settings-cog.svg" alt="">Configurations</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Business/calendar-line.svg" alt="">Planning</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/Design/layout-grid-line.svg" alt="">Dashboard</div>
+      <div class="cmd-result"><img class="pixelicon" src="https://unpkg.com/remixicon@4.6.0/icons/System/settings-3-line.svg" alt="">Configurations</div>
     </div>
   </div>
 </div>
@@ -2488,17 +2637,7 @@
   if (helpC) drawHelp(helpC);
   if (bellC) drawBell(bellC);
 
-  // Bunny hop on hover
-  const bunny = document.querySelector('.rail-brand img');
-  if (bunny) {
-    bunny.addEventListener('mouseenter', () => {
-      if (bunny.classList.contains('bunny-hop')) return;
-      bunny.classList.add('bunny-hop');
-      bunny.addEventListener('animationend', () => {
-        bunny.classList.remove('bunny-hop');
-      }, { once: true });
-    });
-  }
+  // Bunny hover — handled by delight script with random animations
 })();
 </script>
 
@@ -2747,7 +2886,9 @@ function initViewDropdown() {
 
   trigger.addEventListener('click', (e) => {
     e.stopPropagation();
-    menu.classList.toggle('visible');
+    const opening = !menu.classList.contains('visible');
+    menu.classList.toggle('visible', opening);
+    trigger.classList.toggle('open', opening);
   });
 
   menu.querySelectorAll('.view-dropdown-item').forEach(item => {
@@ -2757,15 +2898,153 @@ function initViewDropdown() {
       item.classList.add('active');
       if (label) label.textContent = item.textContent;
       menu.classList.remove('visible');
+      trigger.classList.remove('open');
     });
   });
 }
 initViewDropdown();
 document.addEventListener('click', () => {
   const m = document.getElementById('viewDropdownMenu');
+  const t = document.getElementById('viewDropdownTrigger');
   if (m) m.classList.remove('visible');
+  if (t) t.classList.remove('open');
+});
+</script>
+<script>
+// Animated tag removal
+document.querySelectorAll('.tag-remove').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tag = btn.closest('.tag');
+    if (!tag) return;
+    tag.classList.add('removing');
+    tag.addEventListener('transitionend', () => tag.remove(), { once: true });
+  });
 });
 </script>
 <script>window.addEventListener('load',()=>{setTimeout(()=>document.documentElement.classList.add('ready'),50);});</script>
+
+<script>
+(function() {
+  // ---- CONSOLE EASTER EGG ----
+  console.log(
+    '%c 🐇 ',
+    'font-size: 32px; background: #f04006; border-radius: 4px; padding: 4px;'
+  );
+  console.log(
+    '%cCodeRabbit Settings',
+    'font-size: 14px; font-weight: 600; color: #0c0a09; font-family: Geist, sans-serif;'
+  );
+  console.log(
+    '%cCurious? We like that. https://coderabbit.ai',
+    'font-size: 12px; color: #78716c; font-family: Geist, sans-serif;'
+  );
+
+  // ---- RANDOMIZED BUNNY ANIMATIONS ----
+  const bunny = document.querySelector('.rail-brand img');
+  if (bunny) {
+    const animations = ['bunny-hop', 'bunny-spin', 'bunny-wiggle', 'bunny-peek'];
+    // Remove old listener, add new one
+    bunny.removeEventListener('mouseenter', bunny._hoverHandler);
+    bunny._hoverHandler = () => {
+      const current = animations.find(a => bunny.classList.contains(a));
+      if (current) return;
+      const pick = animations[Math.floor(Math.random() * animations.length)];
+      bunny.classList.add(pick);
+      bunny.addEventListener('animationend', () => bunny.classList.remove(pick), { once: true });
+    };
+    bunny.addEventListener('mouseenter', bunny._hoverHandler);
+  }
+
+  // ---- SCROLL SHADOWS ----
+  const scrollEl = document.getElementById('settingsScroll');
+  const scrollWrap = document.getElementById('scrollWrap');
+  if (scrollEl && scrollWrap) {
+    function updateScrollShadows() {
+      const { scrollTop, scrollHeight, clientHeight } = scrollEl;
+      scrollWrap.classList.toggle('scroll-top', scrollTop > 8);
+      scrollWrap.classList.toggle('scroll-bottom', scrollTop + clientHeight < scrollHeight - 8);
+    }
+    scrollEl.addEventListener('scroll', updateScrollShadows, { passive: true });
+    // Initial check after content loads
+    setTimeout(updateScrollShadows, 200);
+  }
+
+  // ---- EMPTY SEARCH STATE ----
+  const cmdResults = document.getElementById('cmdResults');
+  const cmdInput = document.getElementById('cmdInput');
+  if (cmdResults && cmdInput) {
+    const observer = new MutationObserver(() => {
+      const visibleResults = cmdResults.querySelectorAll('.cmd-result:not([style*="display: none"])');
+      cmdResults.classList.toggle('no-results', visibleResults.length === 0 && cmdInput.value.length > 0);
+    });
+    cmdInput.addEventListener('input', () => {
+      requestAnimationFrame(() => {
+        const visibleResults = [...cmdResults.querySelectorAll('.cmd-result')].filter(r => r.style.display !== 'none');
+        cmdResults.classList.toggle('no-results', visibleResults.length === 0 && cmdInput.value.length > 0);
+      });
+    });
+  }
+
+  // ---- SECRET: TYPE "rabbit" IN CMD PALETTE ----
+  if (cmdInput && cmdResults) {
+    cmdInput.addEventListener('input', () => {
+      if (cmdInput.value.toLowerCase() === 'rabbit') {
+        // Show a secret result
+        let secretEl = cmdResults.querySelector('.cmd-secret');
+        if (!secretEl) {
+          secretEl = document.createElement('div');
+          secretEl.className = 'cmd-result cmd-secret';
+          secretEl.innerHTML = '<span style="font-size:14px;margin-right:8px;">🐇</span> You found the rabbit hole';
+          secretEl.style.color = 'var(--fg)';
+          secretEl.style.fontWeight = '500';
+          cmdResults.appendChild(secretEl);
+          secretEl.addEventListener('click', () => {
+            // Trigger all bunnies to hop
+            const b = document.querySelector('.rail-brand img');
+            if (b) {
+              b.classList.add('bunny-spin');
+              b.addEventListener('animationend', () => b.classList.remove('bunny-spin'), { once: true });
+            }
+          });
+        }
+        secretEl.style.display = '';
+        cmdResults.classList.remove('no-results');
+      } else {
+        const secretEl = cmdResults.querySelector('.cmd-secret');
+        if (secretEl) secretEl.style.display = 'none';
+      }
+    });
+  }
+
+  // ---- KONAMI CODE ----
+  const konamiSequence = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let konamiIndex = 0;
+  document.addEventListener('keydown', (e) => {
+    if (e.key === konamiSequence[konamiIndex]) {
+      konamiIndex++;
+      if (konamiIndex === konamiSequence.length) {
+        konamiIndex = 0;
+        // Easter egg: make the bunny do a celebration
+        const b = document.querySelector('.rail-brand img');
+        if (b) {
+          // Triple spin
+          b.style.transition = 'transform 1s cubic-bezier(0.25, 1, 0.5, 1)';
+          b.style.transform = 'rotate(1080deg) scale(1.3)';
+          setTimeout(() => {
+            b.style.transform = '';
+            setTimeout(() => { b.style.transition = ''; }, 300);
+          }, 1000);
+        }
+        // Flash a subtle message in the page title
+        const origTitle = document.title;
+        document.title = '🐇 ↑↑↓↓←→←→BA';
+        setTimeout(() => { document.title = origTitle; }, 3000);
+      }
+    } else {
+      konamiIndex = e.key === konamiSequence[0] ? 1 : 0;
+    }
+  });
+})();
+</script>
 </body>
 </html>
